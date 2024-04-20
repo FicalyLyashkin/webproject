@@ -20,8 +20,19 @@
                     <li class="nav-item"><a class="nav-link" href="/create_room">Создать комнату</a></li>
                     <li class="nav-item"><a class="nav-link" href="/join_room">Присоединиться к комнате</a></li>
                     <div class="text-end">
-                        <button type="button" class="btn btn-outline-light me-2 ">Вход </button>
-                        <button type="button" class="btn btn-secondary btn-outline-light">Регистрация</button>
+                        <button type="button" id="loginBtn" class="btn btn-outline-light me-2">Вход</button>
+
+                        <button type="button" id="registrationBtn" class="btn btn-secondary btn-outline-light">Регистрация</button>
+
+                        <script>
+                            document.getElementById('registrationBtn').addEventListener('click', function() {
+                                window.location.href = '/registration';
+                            });
+
+                            document.getElementById('loginBtn').addEventListener('click', function() {
+                                window.location.href = '/login';
+                            });
+                        </script>
                     </div>
                 </ul>
             </div>
