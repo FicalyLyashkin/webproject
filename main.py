@@ -4,7 +4,8 @@ from flask import request
 from data import db_session
 from data.login_form import LoginForm
 from data.users import User
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, login_required, logout_user
+from data.register_form import RegisterForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '775664a9b6ace72dedb42f592cb19a2789935126497200fc1aee8eb2a12d23b9'
@@ -39,7 +40,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
-        if user:  # and user.check_password(form.password.data): нужно хэшировать пароль
+        if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
         return render_template('login.html',
@@ -51,21 +52,33 @@ def login():
 
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-    if request.method == 'GET':
-        return render_template('registration.html')
-    elif request.method == 'POST':
-        user = User()
-        user.nikname = request.form['nikname']
-        user.email = request.form['email']
-        user.hashed_password = request.form['password']
-        user.icon = request.form['file']
+    form = RegisterForm()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            nikname=form.name.data,
+            email=form.email.data
+        )
+        user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        # print(request.form['auto_entry'])
-        # print(request.form['cancel'])
-        # print(request.form['login'])
-        return render_template('index.html')
+        return redirect('/login')
+    return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
 
 
 if __name__ == '__main__':
