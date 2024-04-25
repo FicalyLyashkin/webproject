@@ -39,21 +39,18 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/join_room')
+@app.route('/join_room', methods=['POST', 'GET'])
 def join_room():
     form = JoinRoomForm()
-    try:
-        if form.validate_on_submit():
-            db_sess = db_session.create_session()
-            if not db_sess.query(Room).filter(Room.code == form.code.data).first():
-                return render_template('join_room.html', form=form,
-                                       messsage="Комнаты с таким номером не существует")
-            room = db_sess.query(Room).filter(Room.code == form.code.data).first()
-            print(room)
-            if room and room.check_password(form.password.data):
-                return redirect(f"/room{form.code.data}")
-    except Exception as e:
-        print(e)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if not db_sess.query(Room).filter(Room.code == form.code.data).first():
+            return render_template('join_room.html', form=form,
+                                   messsage="Комнаты с таким номером не существует")
+        room = db_sess.query(Room).filter(Room.code == form.code.data).first()
+        if room and room.check_password(form.password.data):
+            return redirect(f"/room{form.code.data}")
+
     return render_template('join_room.html', form=form)
 
 
@@ -109,7 +106,7 @@ def create_room():
                                    message="Такая комната уже есть")
         room = Room()
         room.code = form.code.data
-        room.password = room.set_password(form.password.data)
+        room.set_password(form.password.data)
         db_sess.add(room)
         db_sess.commit()
         return redirect(f"/room{form.code.data}")
