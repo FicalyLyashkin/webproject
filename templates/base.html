@@ -21,6 +21,10 @@
                     <li class="nav-item"><a class="nav-link" href="/join_room">Присоединиться к комнате</a></li>
                     <div class="text-end">
                         {% if current_user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="/">
+                            <p>{% set file = 'img/' + current_user.icon %}</p>
+                        <img src="{{ url_for('static', filename=file) }}" alt="icon" width="30" height="30">
+                    </a></li>
                         <a class="navbar-brand" href="/logout">{{ current_user.nikname }}</a>
                         {% else %}
                         <button type="button" id="loginBtn" class="btn btn-outline-light me-2">Вход</button>

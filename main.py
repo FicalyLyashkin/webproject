@@ -1,6 +1,10 @@
+import os
+
 from flask import Flask, redirect
 from flask import render_template
 from flask import request
+from werkzeug.utils import secure_filename
+
 from data import db_session
 from data.login_form import LoginForm
 from data.users import User
@@ -17,7 +21,8 @@ app.config['SECRET_KEY'] = '775664a9b6ace72dedb42f592cb19a2789935126497200fc1aee
 login_manager = LoginManager()
 login_manager.init_app(app)
 youtube = build('youtube', 'v3', developerKey='AIzaSyDBwGcZnOylzdtsu0VkHdY7m2d_QiM2hHQ')
-
+UPLOAD_FOLDER = '/static/img/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def extract_video_id(url):
     pattern = "https://www.youtube.com/watch?v={video_id}"
@@ -83,10 +88,15 @@ def registration():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-        user = User(
-            nikname=form.name.data,
-            email=form.email.data
-        )
+
+        image = form.icon.data
+        filename = secure_filename(image.filename)
+        image.save(os.path.join('static/img', filename))
+
+        user = User()
+        user.nikname = form.name.data
+        user.email = form.email.data
+        user.icon = filename
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
