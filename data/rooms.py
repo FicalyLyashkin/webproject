@@ -4,18 +4,21 @@ from sqlalchemy import orm
 from flask_login import UserMixin
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 
 
 class Room(SqlAlchemyBase, UserMixin):
     __tablename__ = 'rooms'
-
-    id = sqlalchemy.Column(sqlalchemy.Integer,
-                           primary_key=True, autoincrement=True)
-    code = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    video_link = sqlalchemy.Column(sqlalchemy.String,
-                              index=True, unique=True, nullable=True)
-    user = orm.relationship("User", back_populates="room")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String, nullable=False)
+    password = Column(String, nullable=True)
+    video_link = Column(String, nullable=True)
+    current_time = Column(Float, default=0.0)
+    leader_id = Column(Integer, ForeignKey('users.id'))
+    leader = relationship('User', backref='led_rooms', foreign_keys=[leader_id])
+    users = relationship("User", back_populates="room", foreign_keys="User.room_id")
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
