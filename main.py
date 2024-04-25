@@ -6,7 +6,7 @@ from data.login_form import LoginForm
 from data.users import User
 from data.rooms import Room
 from data.create_room_form import CreateRoomForm
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from data.register_form import RegisterForm
 from googleapiclient.discovery import build
 from parse import parse
@@ -49,7 +49,7 @@ def join_room():
                                    messsage="Комнаты с таким номером не существует")
         room = db_sess.query(Room).filter(Room.code == form.code.data).first()
         if room and room.check_password(form.password.data):
-            return redirect(f"/room{form.code.data}")
+            return redirect(f"/room")
 
     return render_template('join_room.html', form=form)
 
@@ -108,8 +108,10 @@ def create_room():
         room.code = form.code.data
         room.set_password(form.password.data)
         db_sess.add(room)
+        user = db_sess.query(User).filter(User.id == str(current_user.id)).first()
+        room.user.append(user)
         db_sess.commit()
-        return redirect(f"/room{form.code.data}")
+        return redirect(f"/room")
     return render_template("create_room.html", title='Создать комнату', form=form)
 
 
@@ -120,8 +122,8 @@ def logout():
     return redirect("/")
 
 
-@app.route('/room<code>', methods=['GET', 'POST'])
-def room(code):
+@app.route('/room', methods=['GET', 'POST'])
+def room():
     video_id = None
     if request.method == 'POST':
         url = request.form['link']

@@ -16,10 +16,11 @@
 <div style="display: flex; justify-content: center; padding: 0 20px; margin-top: 20px;">
     <div class="left"
          style="flex: 2; padding: 20px; text-align: center; margin-right: 10px; background-color: #292e33; border-radius: 10px;">
+        <h1>Комната "{{ code }}"</h1>
         <form action="/room" method="post">
             <div style="display: flex; justify-content: left; padding: 10px 20px; margin-top: 20px;">
-                <input type="button" value="Выйти из комнаты" style="margin-right: 10px;"
-                       onclick="redirectToHomePage()">
+                <input type="button" value="Выйти из комнаты" class="btn btn-danger"
+                       onclick="redirectToHomePage()" style="margin-right: 10px;">
 
                 <script>
                     function redirectToHomePage() {

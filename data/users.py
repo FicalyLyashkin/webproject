@@ -16,6 +16,9 @@ class User(SqlAlchemyBase, UserMixin):
                               index=True, unique=True, nullable=False)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     icon = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    room_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                sqlalchemy.ForeignKey("rooms.id"))
+    room = orm.relationship("Room")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)

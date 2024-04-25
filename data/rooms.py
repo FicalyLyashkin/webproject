@@ -15,7 +15,7 @@ class Room(SqlAlchemyBase, UserMixin):
     password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     video_link = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)
-    members = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    user = orm.relationship("User", back_populates="room")
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
