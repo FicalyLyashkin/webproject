@@ -10,7 +10,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from data.register_form import RegisterForm
 from googleapiclient.discovery import build
 from parse import parse
-
+from data.join_room_form import JoinRoomForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '775664a9b6ace72dedb42f592cb19a2789935126497200fc1aee8eb2a12d23b9'
@@ -27,6 +27,7 @@ def extract_video_id(url):
     else:
         return None
 
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -40,7 +41,20 @@ def index():
 
 @app.route('/join_room')
 def join_room():
-    return render_template('join_room.html')
+    form = JoinRoomForm()
+    try:
+        if form.validate_on_submit():
+            db_sess = db_session.create_session()
+            if not db_sess.query(Room).filter(Room.code == form.code.data).first():
+                return render_template('join_room.html', form=form,
+                                       messsage="Комнаты с таким номером не существует")
+            room = db_sess.query(Room).filter(Room.code == form.code.data).first()
+            print(room)
+            if room and room.check_password(form.password.data):
+                return redirect(f"/room{form.code.data}")
+    except Exception as e:
+        print(e)
+    return render_template('join_room.html', form=form)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -87,24 +101,19 @@ def registration():
 def create_room():
     form = CreateRoomForm()
     if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Пароли не совпадают")
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация',
+        if db_sess.query(Room).filter(Room.code == form.code.data).first():
+            return render_template("create_room.html",
+                                   title='Создать комнату',
                                    form=form,
-                                   message="Такой пользователь уже есть")
-        user = User(
-            nikname=form.name.data,
-            email=form.email.data
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
+                                   message="Такая комната уже есть")
+        room = Room()
+        room.code = form.code.data
+        room.password = room.set_password(form.password.data)
+        db_sess.add(room)
         db_sess.commit()
-        return redirect('/login')
-    return render_template('register.html', title='Регистрация', form=form)
+        return redirect(f"/room{form.code.data}")
+    return render_template("create_room.html", title='Создать комнату', form=form)
 
 
 @app.route('/logout')
@@ -114,8 +123,8 @@ def logout():
     return redirect("/")
 
 
-@app.route('/room', methods=['GET', 'POST'])
-def room():
+@app.route('/room<code>', methods=['GET', 'POST'])
+def room(code):
     video_id = None
     if request.method == 'POST':
         url = request.form['link']
