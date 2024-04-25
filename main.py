@@ -125,14 +125,17 @@ def logout():
 @app.route('/room', methods=['GET', 'POST'])
 def room():
     video_id = None
+    db_sess = db_session.create_session()
+    code = db_sess.query(Room).filter(Room.id == current_user.room_id).first().code
+    print(code)
     if request.method == 'POST':
         url = request.form['link']
         video_id = extract_video_id(url)
 
     if video_id:
-        return render_template('room.html', video_id=video_id, play=True)
+        return render_template('room.html', video_id=video_id, play=True, code=code)
     else:
-        return render_template('room.html', play=False)
+        return render_template('room.html', play=False, code=code)
 
 
 if __name__ == '__main__':
