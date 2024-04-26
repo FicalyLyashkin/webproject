@@ -154,9 +154,15 @@ def registration():
 
 
 @app.route('/create_room', methods=['POST', 'GET'])
-@login_required
 def create_room():
+
     form = CreateRoomForm()
+
+    if not current_user.is_authenticated:
+        return render_template("create_room.html",
+                               title='Создать комнату',
+                               form=form,
+                               message="Для создания комнаты нужно зарегистрироваться")
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(Room).filter(Room.code == form.code.data).first():
