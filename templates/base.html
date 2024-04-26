@@ -20,7 +20,7 @@
                     <li class="nav-item"><a class="nav-link" href="/">О нас</a></li>
                     <li class="nav-item"><a class="nav-link" href="/create_room">Создать комнату</a></li>
                     <li class="nav-item"><a class="nav-link" href="/join_room">Присоединиться к комнате</a></li>
-                    <div class="text-end">
+                    <div class="text-end" style="display: flex; justify-content: center;">
                         {% if current_user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="/">
                             <p>{% set file = 'img/' + current_user.icon %}</p>
