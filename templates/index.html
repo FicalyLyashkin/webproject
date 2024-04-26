@@ -5,8 +5,32 @@
 {% endblock %}
 
 {% block content %}
-Главная страница
-{% endblock %}
+<header id="main">
+    <div class="container text-center">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h1 class="h1 text-center text-white">Смотрите YouTube вместе</h1>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h3 class="h4 text-center text-white">На нашем сайте мы можете
+                    создать комнату для совместного просмотра видео</h3>
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <img src=" {{ url_for('static', filename='img/main.jpg') }} " class="rounded float-start"
+                             alt="...">
+                    </div>
+                </div>
+                <h3 class="h4 text-center text-white">Поделитесь с другом
+                    названием комнаты и паролем и наслаждайтесь просмотром!</h3>
+            </div>
+        </div>
+    </div>
+</header>
+
+<header id="about">
+    {% endblock %}
 
 
 
