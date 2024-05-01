@@ -23,6 +23,7 @@ youtube = build('youtube', 'v3', developerKey='AIzaSyDBwGcZnOylzdtsu0VkHdY7m2d_Q
 UPLOAD_FOLDER = '/static/img/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 def extract_video_id(url):
     youtube_regex = (
         r'(https?://)?(www\.)?'
@@ -32,6 +33,7 @@ def extract_video_id(url):
     if youtube_regex_match:
         return youtube_regex_match.group(6)
     return None
+
 
 @app.route('/update_video', methods=['POST'])
 @login_required
@@ -51,6 +53,7 @@ def update_video():
     else:
         return jsonify({'error': 'Invalid YouTube URL'}), 400
 
+
 @app.route('/update_time', methods=['POST'])
 @login_required
 def update_time():
@@ -64,6 +67,7 @@ def update_time():
         return jsonify({'message': 'Time updated'}), 200
     return jsonify({'error': 'Not authorized or room not found'}), 400
 
+
 @app.route('/get_time', methods=['GET'])
 def get_time():
     db_sess = db_session.create_session()
@@ -73,6 +77,7 @@ def get_time():
         return jsonify({'current_time': room.current_time}), 200
     return jsonify({'error': 'Room not found'}), 404
 
+
 @app.route('/current_video')
 def current_video():
     room_id = request.args.get('room_id')
@@ -81,6 +86,7 @@ def current_video():
     if room and room.video_link:
         return jsonify({'video_link': room.video_link})
     return jsonify({'error': 'No video currently available'}), 404
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -155,7 +161,6 @@ def registration():
 
 @app.route('/create_room', methods=['POST', 'GET'])
 def create_room():
-
     form = CreateRoomForm()
 
     if not current_user.is_authenticated:
@@ -164,6 +169,11 @@ def create_room():
                                form=form,
                                message="Для создания комнаты нужно зарегистрироваться")
     if form.validate_on_submit():
+        if not current_user.is_authenticated:
+            return render_template("create_room.html",
+                                   title='Создать комнату',
+                                   form=form,
+                                   message="Вы не авторизованы")
         db_sess = db_session.create_session()
         if db_sess.query(Room).filter(Room.code == form.code.data).first():
             return render_template("create_room.html",
@@ -184,6 +194,17 @@ def create_room():
 @login_required
 def logout():
     logout_user()
+    return redirect("/")
+
+
+@app.route('/deleteroom/<string:code>')
+def delete_room(code):
+    db_sess = db_session.create_session()
+    room = db_sess.query(Room).filter(Room.code == code).first()
+    if not room:
+        return "Комната не найдена", 404
+    db_sess.delete(room)
+    db_sess.commit()
     return redirect("/")
 
 
