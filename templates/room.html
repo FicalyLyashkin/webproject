@@ -14,60 +14,68 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            {% if current_user.id == room.leader_id %}
+            <form id="videoForm" style="display: flex; justify-content: left; padding: 10px 20px; margin-top: 20px;">
+                <input type="url" class="form-control" placeholder="Вставьте ссылку на видео" id="link" name="link"
+                       style="margin-right: 10px;">
+                <button type="submit" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         class="bi bi-check-lg" viewBox="0 0 16 16">
+                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"></path>
+                    </svg>
+                </button>
+            </form>
+            {% endif %}
+            <div class="ratio ratio-16x9">
+                <iframe id="ytplayer"
+                        src="{{ video_link | default('', true) }}" allowfullscreen></iframe>
+            </div>
+            {% if current_user.id == room.leader_id %}
+            <p></p>
+            <a class="btn btn-outline-danger" href="/deleteroom/{{ room_code }}" role="button">Выйти из комнаты</a>
+            {% endif %}
 
-<div style="display: flex; justify-content: center; padding: 0 20px; margin-top: 20px;">
-    <div class="left"
-         style="flex: 2; padding: 20px; text-align: center; margin-right: 10px; background-color: #292e33; border-radius: 10px;">
-        {% if current_user.id == room.leader_id %}
-        <form id="videoForm" style="display: flex; justify-content: left; padding: 10px 20px; margin-top: 20px;">
-            <input type="url" class="form-control" placeholder="Вставьте ссылку на видео" id="link" name="link" style="margin-right: 10px;">
-            <button type="submit" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                             class="bi bi-check-lg" viewBox="0 0 16 16">
-                            <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"></path>
-                        </svg></button>
-        </form>
-        {% endif %}
-        <iframe id="ytplayer" width="1200" height="675" style="margin-top: 20px;" src="{{ video_link | default('', true) }}" frameborder="0" allowfullscreen></iframe>
-
-        <a class="btn btn-outline-danger" href="/deleteroom/{{ room_code }}" role="button">Удалить комнату</a>
+        </div>
     </div>
 </div>
-
 <script>
-function redirectToHomePage() {
-    window.location.href = "/deleteroom/" + room_code;
-}
+    function redirectToHomePage() {
+        window.location.href = "/deleteroom/" + room_code;
+    }
 
-document.getElementById('videoForm') && document.getElementById('videoForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const videoUrl = document.getElementById('link').value;
-    fetch('/update_video', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({url: videoUrl, room_id: "{{ room_code }}"})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.video_id) {
-            document.getElementById('ytplayer').src = `https://www.youtube.com/embed/${data.video_id}?autoplay=1&controls=0&disablekb=1&modestbranding=1&rel=0&showinfo=0`;
-        } else {
-            alert('Ошибка: Неверная ссылка на видео');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-setInterval(function() {
-    fetch('/current_video?room_id={{ room_code }}')
-    .then(response => response.json())
-    .then(data => {
-        if (data.video_link && document.getElementById('ytplayer').src !== data.video_link) {
-            document.getElementById('ytplayer').src = data.video_link;
-        }
+    document.getElementById('videoForm') && document.getElementById('videoForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const videoUrl = document.getElementById('link').value;
+        fetch('/update_video', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({url: videoUrl, room_id: "{{ room_code }}"})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.video_id) {
+                document.getElementById('ytplayer').src = `https://www.youtube.com/embed/${data.video_id}?autoplay=1&controls=0&disablekb=1&modestbranding=1&rel=0&showinfo=0`;
+            } else {
+                alert('Ошибка: Неверная ссылка на видео');
+            }
+        })
+        .catch(error => console.error('Error:', error));
     });
-}, 1000);
+
+    setInterval(function() {
+        fetch('/current_video?room_id={{ room_code }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.video_link && document.getElementById('ytplayer').src !== data.video_link) {
+                document.getElementById('ytplayer').src = data.video_link;
+            }
+        });
+    }, 1000);
 </script>
 
 {% endblock %}

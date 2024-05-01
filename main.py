@@ -30,6 +30,7 @@ def extract_video_id(url):
         '(youtube|youtu|youtube-nocookie)\.(com|be)/'
         '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
     youtube_regex_match = re.match(youtube_regex, url)
+
     if youtube_regex_match:
         return youtube_regex_match.group(6)
     return None
@@ -42,14 +43,17 @@ def update_video():
     url = request.json.get('url')
     db_sess = db_session.create_session()
     room = db_sess.query(Room).filter(Room.code == room_id).first()
+
     if room.leader_id != current_user.id:
         return jsonify({'error': 'Only the leader can update the video'}), 403
 
     video_id = extract_video_id(url)
+
     if video_id:
         room.video_link = f"https://www.youtube.com/embed/{video_id}?autoplay=1&controls=0"
         db_sess.commit()
         return jsonify({'video_id': video_id})
+
     else:
         return jsonify({'error': 'Invalid YouTube URL'}), 400
 
@@ -61,6 +65,7 @@ def update_time():
     room_id = request.json.get('room_id')
     current_time = request.json.get('current_time')
     room = db_sess.query(Room).filter(Room.code == room_id).first()
+
     if room and room.leader_id == current_user.id:
         room.current_time = current_time
         db_sess.commit()
@@ -73,6 +78,7 @@ def get_time():
     db_sess = db_session.create_session()
     room_id = request.args.get('room_id')
     room = db_sess.query(Room).filter(Room.code == room_id).first()
+
     if room:
         return jsonify({'current_time': room.current_time}), 200
     return jsonify({'error': 'Room not found'}), 404
@@ -83,6 +89,7 @@ def current_video():
     room_id = request.args.get('room_id')
     db_sess = db_session.create_session()
     room = db_sess.query(Room).filter(Room.code == room_id).first()
+
     if room and room.video_link:
         return jsonify({'video_link': room.video_link})
     return jsonify({'error': 'No video currently available'}), 404
@@ -104,10 +111,13 @@ def join_room():
     form = JoinRoomForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
+
         if not db_sess.query(Room).filter(Room.code == form.code.data).first():
             return render_template('join_room.html', form=form,
                                    messsage="Комнаты с таким номером не существует")
+
         room = db_sess.query(Room).filter(Room.code == form.code.data).first()
+
         if room and room.check_password(form.password.data):
             return redirect(f"/room{form.code.data}")
 
@@ -120,6 +130,7 @@ def login():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
+
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -138,11 +149,13 @@ def registration():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
+
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
+
         image = form.icon.data
         if not image:
             filename = 'base.jpg'
@@ -158,6 +171,7 @@ def registration():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
+
     return render_template('register.html', title='Регистрация', form=form)
 
 
@@ -165,23 +179,20 @@ def registration():
 def create_room():
     form = CreateRoomForm()
 
-    if not current_user.is_authenticated:
-        return render_template("create_room.html",
-                               title='Создать комнату',
-                               form=form,
-                               message="Для создания комнаты нужно зарегистрироваться")
     if form.validate_on_submit():
         if not current_user.is_authenticated:
             return render_template("create_room.html",
                                    title='Создать комнату',
                                    form=form,
                                    message="Вы не авторизованы")
+
         db_sess = db_session.create_session()
         if db_sess.query(Room).filter(Room.code == form.code.data).first():
             return render_template("create_room.html",
                                    title='Создать комнату',
                                    form=form,
                                    message="Такая комната уже есть")
+
         room = Room()
         room.code = form.code.data
         room.set_password(form.password.data)
@@ -189,6 +200,7 @@ def create_room():
         db_sess.add(room)
         db_sess.commit()
         return redirect(f"/room{form.code.data}")
+
     return render_template("create_room.html", title='Создать комнату', form=form)
 
 
@@ -203,10 +215,12 @@ def logout():
 def delete_room(code):
     db_sess = db_session.create_session()
     room = db_sess.query(Room).filter(Room.code == code).first()
+
     if not room:
         return "Комната не найдена", 404
     db_sess.delete(room)
     db_sess.commit()
+
     return redirect("/")
 
 
@@ -220,19 +234,23 @@ def room(code):
     if request.method == 'POST' and request.is_json:
         url = request.json['url']
         video_id = extract_video_id(url)
+
         if video_id:
             room.video_link = f"https://www.youtube.com/embed/{video_id}?autoplay=1&controls=0"
             db_sess.commit()
             return jsonify({'video_id': video_id})
+
         return jsonify({'error': 'Invalid YouTube URL'}), 400
 
     if request.method == 'POST':
         url = request.form['link']
         video_id = extract_video_id(url)
         if video_id:
+
             room.video_link = f"https://www.youtube.com/embed/{video_id}?autoplay=1&controls=0"
             db_sess.commit()
             return render_template('room.html', room=room, room_code=code, video_id=video_id, play=True)
+
         else:
             return render_template('room.html', room=room, room_code=code, play=False)
 
