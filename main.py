@@ -143,10 +143,12 @@ def registration():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
-
         image = form.icon.data
-        filename = secure_filename(image.filename)
-        image.save(os.path.join('static/img', filename))
+        if not image:
+            filename = 'base.jpg'
+        else:
+            filename = secure_filename(image.filename)
+            image.save(os.path.join('static/img', filename))
 
         user = User()
         user.nikname = form.name.data

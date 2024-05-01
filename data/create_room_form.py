@@ -3,6 +3,6 @@ from wtforms import *
 
 
 class CreateRoomForm(FlaskForm):
-    code = StringField("Код комнаты")
+    code = StringField("Название комнаты")
     password = PasswordField("Придумайте пароль для комнаты")
     submit = SubmitField('Создать')
