@@ -9,25 +9,83 @@
     <div class="container text-center">
         <div class="row align-items-center">
             <div class="col-12">
-                <h1 class="h1 text-center text-white">Смотрите YouTube вместе</h1>
+                <h1 class="h1 text-center text-white fw-bold">Смотрите YouTube вместе</h1>
             </div>
-        </div>
-        <div class="row align-items-center">
             <div class="col-12">
                 <h3 class="h4 text-center text-white">На нашем сайте мы можете
                     создать комнату для совместного просмотра видео</h3>
-                <div class="row align-items-center">
-                    <div class="col-12">
-                        <img src=" {{ url_for('static', filename='img/main.jpg') }} " class="rounded float-start"
-                             alt="...">
-                    </div>
-                </div>
-                <h3 class="h4 text-center text-white">Поделитесь с другом
-                    названием комнаты и паролем и наслаждайтесь просмотром!</h3>
+            </div>
+            <div class="col-12" id="logo">
+                <img src="{{ url_for('static', filename='/img/logopng.png') }}" class="img-fluid" alt="...">
             </div>
         </div>
-    </div>
 </header>
 
 <header id="about">
-    {% endblock %}
+    <h3 class="text-start fw-bold">Как пользоваться сайтом</h3>
+    <div class="accordion accordion-flush " id="accordionFlushExample" style="accordion-color: red;">
+        <div class="accordion-item ">
+            <h2 class="accordion-header ">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                    Создание комнаты
+                </button>
+            </h2>
+            <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <p class="text-start fw-bold">
+                        1. Создайте аккаунт<br>
+                        2. Войдите в него<br>
+                        3. Нажмите "Создать комнату"<br>
+                        4. Придумай любое название и пароль<br>
+                        5. Нажмите "Создать", после чего вы попадете в комнату<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                    Подключение в созданную комнату
+                </button>
+            </h2>
+            <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <p class="text-start fw-bold">
+                        1. Нажмите "Присоединиться к комнате"<br>
+                        2. Введите название и пароль от комнаты<br>
+                        3. Нажмите "Создать", после чего вы попадете в комнату<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseTwo">
+                    Воспроизведение видео
+                </button>
+            </h2>
+            <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    <p class="text-start fw-bold">
+                        1. Зайдите на сайт
+                        <a href="https://www.youtube.com"
+                           class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">YouTube</a><br>
+                        2. Выберите подходящее видео, и скопируйте ссылку на него<br>
+                        3. Создатель комнаты должен вставить ее в строку
+                        "Вставьте ссылку на видео"<br>
+                        4. Убедитесь в том, что все, кто хочет посмотреть видео уже
+                        находятся в комнате<br>
+                        5. Создатель комнаты должен нажать синюю галочку<br>
+                        6. Одновременно включите видео и наслаждайтесь просмотром<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+{% endblock %}
