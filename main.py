@@ -108,6 +108,7 @@ def index():
 
 @app.route('/join_room', methods=['POST', 'GET'])
 def join_room():
+    # Функиция отвечает за вход в комнату
     form = JoinRoomForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -126,6 +127,7 @@ def join_room():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    # Функиция отвечает за вход в аккаунт пользователя
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -137,12 +139,14 @@ def login():
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
-    print('error')
+
     return render_template('login.html', title='Авторизация', form=form)
 
 
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
+    #  Функция отвечает за добавление информации о новом пользователе
+    #  В базу данных
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -177,6 +181,7 @@ def registration():
 
 @app.route('/create_room', methods=['POST', 'GET'])
 def create_room():
+    # Функия отвечает за создание новой комнаты
     form = CreateRoomForm()
 
     if form.validate_on_submit():
@@ -213,6 +218,7 @@ def logout():
 
 @app.route('/deleteroom/<string:code>')
 def delete_room(code):
+    # Функция удаляет комнату, вызывается при нажатии кнопки
     db_sess = db_session.create_session()
     room = db_sess.query(Room).filter(Room.code == code).first()
 
@@ -226,6 +232,7 @@ def delete_room(code):
 
 @app.route('/room<code>', methods=['GET', 'POST'])
 def room(code):
+    # Функция отвечает за страницу с комнатой
     db_sess = db_session.create_session()
     room = db_sess.query(Room).filter(Room.code == code).first()
     if not room:
